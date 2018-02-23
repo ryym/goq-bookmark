@@ -35,6 +35,7 @@ func main() {
 	e.GET("/users", ShowUsers(usersR))
 	e.GET("/users/:user_id", ShowBookmarks(usersR, bookmarksR))
 	e.GET("/entries", ShowEntries(entriesR))
+	e.POST("/entries", CreateEntry(entriesR))
 	e.Logger.Fatal(e.Start(":8000"))
 }
 
@@ -85,12 +86,48 @@ func ShowBookmarks(
 	}
 }
 
+type entriesPageData struct {
+	Entries []model.Entry
+	Entry   model.Entry
+	Errs    []error
+}
+
 func ShowEntries(entriesR *repo.EntriesRepo) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		entries, err := entriesR.All()
 		if err != nil {
 			return err
 		}
-		return c.Render(http.StatusOK, "entries", entries)
+		return c.Render(http.StatusOK, "entries", &entriesPageData{
+			Entries: entries,
+		})
+	}
+}
+
+func CreateEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		entry := model.Entry{
+			Title: c.FormValue("title"),
+			URL:   c.FormValue("url"),
+		}
+
+		errs := model.ValidateEntry(&entry)
+		if len(errs) > 0 {
+			entries, err := entriesR.All()
+			if err != nil {
+				return err
+			}
+			return c.Render(http.StatusOK, "entries", &entriesPageData{
+				Entries: entries,
+				Entry:   entry,
+				Errs:    errs,
+			})
+		}
+
+		err := entriesR.Create(&entry)
+		if err != nil {
+			return err
+		}
+		return c.Redirect(http.StatusFound, "/entries")
 	}
 }

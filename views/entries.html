@@ -3,11 +3,29 @@
 <h1>All Entries</h1>
 
 <ul>
-  {{range .}}
+  {{range .Entries}}
   <li>
     <a target="_blank" href="{{.URL}}">{{.Title}}</a>
   </li>
   {{end}}
 </ul>
+
+<h2>New entry</h2>
+
+{{if .Errs}}
+<ul style="color: red;">
+  {{range .Errs}}
+  <li>{{.Error}}</li>
+  {{end}}
+</ul>
+{{end}}
+
+<form method="POST">
+  <label for="entry-title">Title</label>
+  <input type="text" id="entry-title" name="title" value="{{.Entry.Title}}">
+  <label for="entry-url">URL</label>
+  <input type="text" id="entry-url" name="url" value="{{.Entry.URL}}">
+  <button type="submit">Create</button>
+</form>
 
 {{end}}

@@ -21,3 +21,10 @@ func (r *EntriesRepo) All() ([]model.Entry, error) {
 	err := r.DB.Query(q).Collect(z.ToSlice(&entries))
 	return entries, err
 }
+
+func (r *EntriesRepo) Create(entry *model.Entry) error {
+	z := r.Builder
+	q := z.InsertInto(z.Entries, z.Entries.Except(z.Entries.ID).Columns()...).Values(entry)
+	_, err := r.DB.Exec(q)
+	return err
+}
