@@ -26,7 +26,7 @@ CREATE TABLE bookmarks (
 
     user_id INT NOT NULL,
     entry_id INT NOT NULL,
-    comment VARCHAR(256) NOT NULL,
+    comment VARCHAR(256),
 
     /* created_at DATETIME NOT NULL, */
     /* updated_at DATETIME NOT NULL, */
