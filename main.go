@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	conn := "port=5432 database=bookmark sslmode=disable"
+	conn := "port=5431 user=bookmark sslmode=disable"
 	db, err := goq.Open("postgres", conn)
 	if err != nil {
 		panic(err)

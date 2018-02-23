@@ -1,0 +1,10 @@
+version: '3'
+services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.db
+    ports:
+      - '5431:5432'
+    environment:
+      - POSTGRES_USER=bookmark
