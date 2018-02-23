@@ -24,11 +24,17 @@ func main() {
 
 	usersR := repo.NewUsersRepo(db)
 	bookmarksR := repo.NewBookmarksRepo(db)
+	entriesR := repo.NewEntriesRepo(db)
 
 	e := echo.New()
 	e.Renderer = NewTemplate("views/*.html")
-	e.GET("/", ShowUsers(usersR))
-	e.GET("/:user_id", ShowBookmarks(usersR, bookmarksR))
+
+	e.GET("/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "home", nil)
+	})
+	e.GET("/users", ShowUsers(usersR))
+	e.GET("/users/:user_id", ShowBookmarks(usersR, bookmarksR))
+	e.GET("/entries", ShowEntries(entriesR))
 	e.Logger.Fatal(e.Start(":8000"))
 }
 
@@ -76,5 +82,15 @@ func ShowBookmarks(
 			Bookmarks: bookmarks,
 			Entries:   entries,
 		})
+	}
+}
+
+func ShowEntries(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		entries, err := entriesR.All()
+		if err != nil {
+			return err
+		}
+		return c.Render(http.StatusOK, "entries", entries)
 	}
 }

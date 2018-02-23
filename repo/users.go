@@ -6,12 +6,11 @@ import (
 )
 
 type UsersRepo struct {
-	DB      *goq.DB
-	Builder *Builder
+	*Repo
 }
 
 func NewUsersRepo(db *goq.DB) *UsersRepo {
-	return &UsersRepo{db, NewBuilder(db.Dialect())}
+	return &UsersRepo{newRepo(db)}
 }
 
 func (r *UsersRepo) Find(id int) (model.User, error) {

@@ -1,0 +1,13 @@
+{{define "entries"}}
+
+<h1>All Entries</h1>
+
+<ul>
+  {{range .}}
+  <li>
+    <a target="_blank" href="{{.URL}}">{{.Title}}</a>
+  </li>
+  {{end}}
+</ul>
+
+{{end}}

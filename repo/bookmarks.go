@@ -6,26 +6,19 @@ import (
 )
 
 type BookmarksRepo struct {
-	DB      *goq.DB
-	Builder *Builder
+	*Repo
 }
 
 func NewBookmarksRepo(db *goq.DB) *BookmarksRepo {
-	return &BookmarksRepo{db, NewBuilder(db.Dialect())}
+	return &BookmarksRepo{newRepo(db)}
 }
 
 func (r *BookmarksRepo) FromUser(userID int) ([]model.Bookmark, []model.Entry, error) {
 	z := r.Builder
-	q := z.Select(
-		z.Bookmarks.All(),
-		z.Entries.All(),
-	).From(
-		z.Bookmarks,
-	).Joins(
-		z.Bookmarks.Entries(z.Entries),
-	).Where(
-		z.Bookmarks.UserID.Eq(userID),
-	)
+	q := z.Select(z.Bookmarks.All(), z.Entries.All()).
+		From(z.Bookmarks).
+		Joins(z.Bookmarks.Entries(z.Entries)).
+		Where(z.Bookmarks.UserID.Eq(userID))
 
 	var bookmarks []model.Bookmark
 	var entries []model.Entry
