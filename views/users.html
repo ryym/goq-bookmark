@@ -1,0 +1,12 @@
+{{define "users"}}
+
+  <h1>Users</h1>
+  <ul>
+    {{range .}}
+    <li>
+      <a href="/{{.ID}}">{{.Name}}</a>
+    </li>
+    {{end}}
+  </ul>
+
+{{end}}
