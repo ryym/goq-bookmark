@@ -1,0 +1,17 @@
+{{define "bookmarks"}}
+
+<h1>{{.User.Name}}'s bookmarks</h1>
+
+<ul>
+  {{range $i, $bkm := .Bookmarks}}
+  {{$entry := index $.Entries $i}}
+  <li>
+    <a target="_blank" href="{{$entry.URL}}">{{$entry.Title}}</a>
+    {{if $bkm.Comment.Valid}}
+      <p>{{$bkm.Comment.String}}</p>
+    {{end}}
+  </li>
+  {{end}}
+</ul>
+
+{{end}}
