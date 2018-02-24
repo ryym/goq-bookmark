@@ -14,18 +14,20 @@ type Users struct {
 	gql.Table
 	*cllct.ModelCollectorMaker
 
-	ID   *gql.Column
-	Name *gql.Column
+	ID        *gql.Column
+	Name      *gql.Column
+	CreatedAt *gql.Column
 }
 
 func NewUsers(alias string) *Users {
 	cm := gql.NewColumnMaker("User", "users").As(alias)
 	t := &Users{
 
-		ID:   cm.Col("ID", "id").PK().Bld(),
-		Name: cm.Col("Name", "name").Bld(),
+		ID:        cm.Col("ID", "id").PK().Bld(),
+		Name:      cm.Col("Name", "name").Bld(),
+		CreatedAt: cm.Col("CreatedAt", "created_at").Bld(),
 	}
-	cols := []*gql.Column{t.ID, t.Name}
+	cols := []*gql.Column{t.ID, t.Name, t.CreatedAt}
 	t.Table = gql.NewTable("users", alias, cols)
 	t.ModelCollectorMaker = cllct.NewModelCollectorMaker(cols, alias)
 	return t
@@ -37,20 +39,22 @@ type Entries struct {
 	gql.Table
 	*cllct.ModelCollectorMaker
 
-	ID    *gql.Column
-	URL   *gql.Column
-	Title *gql.Column
+	ID        *gql.Column
+	URL       *gql.Column
+	Title     *gql.Column
+	CreatedAt *gql.Column
 }
 
 func NewEntries(alias string) *Entries {
 	cm := gql.NewColumnMaker("Entry", "entries").As(alias)
 	t := &Entries{
 
-		ID:    cm.Col("ID", "id").PK().Bld(),
-		URL:   cm.Col("URL", "url").Bld(),
-		Title: cm.Col("Title", "title").Bld(),
+		ID:        cm.Col("ID", "id").PK().Bld(),
+		URL:       cm.Col("URL", "url").Bld(),
+		Title:     cm.Col("Title", "title").Bld(),
+		CreatedAt: cm.Col("CreatedAt", "created_at").Bld(),
 	}
-	cols := []*gql.Column{t.ID, t.URL, t.Title}
+	cols := []*gql.Column{t.ID, t.URL, t.Title, t.CreatedAt}
 	t.Table = gql.NewTable("entries", alias, cols)
 	t.ModelCollectorMaker = cllct.NewModelCollectorMaker(cols, alias)
 	return t
@@ -62,22 +66,24 @@ type Bookmarks struct {
 	gql.Table
 	*cllct.ModelCollectorMaker
 
-	ID      *gql.Column
-	UserID  *gql.Column
-	EntryID *gql.Column
-	Comment *gql.Column
+	ID        *gql.Column
+	UserID    *gql.Column
+	EntryID   *gql.Column
+	Comment   *gql.Column
+	CreatedAt *gql.Column
 }
 
 func NewBookmarks(alias string) *Bookmarks {
 	cm := gql.NewColumnMaker("Bookmark", "bookmarks").As(alias)
 	t := &Bookmarks{
 
-		ID:      cm.Col("ID", "id").PK().Bld(),
-		UserID:  cm.Col("UserID", "user_id").Bld(),
-		EntryID: cm.Col("EntryID", "entry_id").Bld(),
-		Comment: cm.Col("Comment", "comment").Bld(),
+		ID:        cm.Col("ID", "id").PK().Bld(),
+		UserID:    cm.Col("UserID", "user_id").Bld(),
+		EntryID:   cm.Col("EntryID", "entry_id").Bld(),
+		Comment:   cm.Col("Comment", "comment").Bld(),
+		CreatedAt: cm.Col("CreatedAt", "created_at").Bld(),
 	}
-	cols := []*gql.Column{t.ID, t.UserID, t.EntryID, t.Comment}
+	cols := []*gql.Column{t.ID, t.UserID, t.EntryID, t.Comment, t.CreatedAt}
 	t.Table = gql.NewTable("bookmarks", alias, cols)
 	t.ModelCollectorMaker = cllct.NewModelCollectorMaker(cols, alias)
 	return t

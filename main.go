@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
+	"github.com/ryym/goq"
 	"github.com/ryym/goq-bookmark/ctx"
 	"github.com/ryym/goq-bookmark/handler"
 	"github.com/ryym/goq-bookmark/repo"
-	"github.com/ryym/goq"
 )
 
 func main() {
@@ -16,9 +16,10 @@ func main() {
 	}
 
 	repo.Init(db)
+	app := ctx.NewAppContext(db)
 
 	e := echo.New()
-	defineRoutes(e, ctx.NewAppContext(db))
+	defineRoutes(e, app)
 	e.Renderer = NewTemplate("views/*.html")
 	e.Logger.Fatal(e.Start(":8000"))
 }

@@ -3,8 +3,8 @@ package repo
 import (
 	"fmt"
 
-	"github.com/ryym/goq-bookmark/model"
 	"github.com/ryym/goq"
+	"github.com/ryym/goq-bookmark/model"
 )
 
 type EntriesRepo struct {
@@ -34,7 +34,10 @@ func (r *EntriesRepo) All() ([]model.Entry, error) {
 }
 
 func (r *EntriesRepo) Create(entry *model.Entry) error {
-	q := z.InsertInto(z.Entries, z.Entries.Except(z.Entries.ID).Columns()...).Values(entry)
+	q := z.InsertInto(
+		z.Entries,
+		z.Entries.Except(z.Entries.ID, z.Entries.CreatedAt).Columns()...,
+	).Values(entry)
 	_, err := r.DB.Exec(q)
 	return err
 }

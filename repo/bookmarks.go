@@ -3,8 +3,8 @@ package repo
 import (
 	"fmt"
 
-	"github.com/ryym/goq-bookmark/model"
 	"github.com/ryym/goq"
+	"github.com/ryym/goq-bookmark/model"
 )
 
 type BookmarksRepo struct {
@@ -82,7 +82,7 @@ func (r *BookmarksRepo) UnbookmarkedEntries(userID int) ([]model.Entry, error) {
 func (r *BookmarksRepo) Create(bookmark *model.Bookmark) error {
 	q := z.InsertInto(
 		z.Bookmarks,
-		z.Bookmarks.Except(z.Bookmarks.ID).Columns()...,
+		z.Bookmarks.Except(z.Bookmarks.ID, z.Bookmarks.CreatedAt).Columns()...,
 	).Values(bookmark)
 	_, err := r.DB.Exec(q)
 	return err
