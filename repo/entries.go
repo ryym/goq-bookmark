@@ -16,7 +16,6 @@ func NewEntriesRepo(db *goq.DB) *EntriesRepo {
 }
 
 func (r *EntriesRepo) Find(entryID int) (model.Entry, error) {
-	z := r.Builder
 	q := z.Select(z.Entries.All()).From(z.Entries).Where(z.Entries.ID.Eq(entryID))
 	var entry model.Entry
 	err := r.DB.Query(q).First(z.Entries.ToElem(&entry))
@@ -27,7 +26,6 @@ func (r *EntriesRepo) Find(entryID int) (model.Entry, error) {
 }
 
 func (r *EntriesRepo) All() ([]model.Entry, error) {
-	z := r.Builder
 	q := z.Select(z.Entries.All()).From(z.Entries).OrderBy(z.Entries.ID.Desc())
 
 	var entries []model.Entry
@@ -36,21 +34,18 @@ func (r *EntriesRepo) All() ([]model.Entry, error) {
 }
 
 func (r *EntriesRepo) Create(entry *model.Entry) error {
-	z := r.Builder
 	q := z.InsertInto(z.Entries, z.Entries.Except(z.Entries.ID).Columns()...).Values(entry)
 	_, err := r.DB.Exec(q)
 	return err
 }
 
 func (r *EntriesRepo) Update(entry *model.Entry) error {
-	z := r.Builder
 	q := z.Update(z.Entries).Elem(entry, z.Entries.Title, z.Entries.URL)
 	_, err := r.DB.Exec(q)
 	return err
 }
 
 func (r *EntriesRepo) Delete(entryID int) error {
-	z := r.Builder
 	q := z.DeleteFrom(z.Entries).Where(z.Entries.ID.Eq(entryID))
 	_, err := r.DB.Exec(q)
 	return err

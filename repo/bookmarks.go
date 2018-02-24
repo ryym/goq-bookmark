@@ -16,7 +16,6 @@ func NewBookmarksRepo(db *goq.DB) *BookmarksRepo {
 }
 
 func (r *BookmarksRepo) Find(bookmarkID int) (model.Bookmark, error) {
-	z := r.Builder
 	q := z.Select(z.Bookmarks.All()).From(z.Bookmarks).Where(z.Bookmarks.ID.Eq(bookmarkID))
 
 	var bookmark model.Bookmark
@@ -29,7 +28,6 @@ func (r *BookmarksRepo) Find(bookmarkID int) (model.Bookmark, error) {
 }
 
 func (r *BookmarksRepo) FindWithAssocs(bookmarkID int) (model.Bookmark, model.User, model.Entry, error) {
-	z := r.Builder
 	b, u, e := z.Bookmarks.As("b"), z.Users.As("u"), z.Entries.As("e")
 	q := z.Select(b.All(), u.All(), e.All()).From(b).Joins(
 		b.Users(u),
@@ -53,7 +51,6 @@ func (r *BookmarksRepo) FindWithAssocs(bookmarkID int) (model.Bookmark, model.Us
 }
 
 func (r *BookmarksRepo) FromUser(userID int) ([]model.Bookmark, []model.Entry, error) {
-	z := r.Builder
 	q := z.Select(z.Bookmarks.All(), z.Entries.All()).
 		From(z.Bookmarks).
 		Joins(z.Bookmarks.Entries(z.Entries)).
@@ -69,12 +66,13 @@ func (r *BookmarksRepo) FromUser(userID int) ([]model.Bookmark, []model.Entry, e
 }
 
 func (r *BookmarksRepo) UnbookmarkedEntries(userID int) ([]model.Entry, error) {
-	z := r.Builder
-	q := z.Select(z.Entries.All()).From(z.Entries).Where(z.Entries.ID.NotIn(
-		z.Select(z.Bookmarks.EntryID).From(z.Bookmarks).Where(
-			z.Bookmarks.UserID.Eq(userID),
+	q := z.Select(z.Entries.All()).From(z.Entries).Where(
+		z.Entries.ID.NotIn(
+			z.Select(z.Bookmarks.EntryID).From(z.Bookmarks).Where(
+				z.Bookmarks.UserID.Eq(userID),
+			),
 		),
-	))
+	)
 
 	var entries []model.Entry
 	err := r.DB.Query(q).Collect(z.Entries.ToSlice(&entries))
@@ -82,7 +80,6 @@ func (r *BookmarksRepo) UnbookmarkedEntries(userID int) ([]model.Entry, error) {
 }
 
 func (r *BookmarksRepo) Create(bookmark *model.Bookmark) error {
-	z := r.Builder
 	q := z.InsertInto(
 		z.Bookmarks,
 		z.Bookmarks.Except(z.Bookmarks.ID).Columns()...,
@@ -92,14 +89,12 @@ func (r *BookmarksRepo) Create(bookmark *model.Bookmark) error {
 }
 
 func (r *BookmarksRepo) Update(bookmark *model.Bookmark) error {
-	z := r.Builder
 	q := z.Update(z.Bookmarks).Elem(bookmark, z.Bookmarks.Comment)
 	_, err := r.DB.Exec(q)
 	return err
 }
 
 func (r *BookmarksRepo) Delete(bookmarkID int) error {
-	z := r.Builder
 	q := z.DeleteFrom(z.Bookmarks).Where(z.Bookmarks.ID.Eq(bookmarkID))
 	_, err := r.DB.Exec(q)
 	return err

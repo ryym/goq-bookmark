@@ -5,6 +5,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/ryym/go-bookmark/ctx"
 	"github.com/ryym/go-bookmark/handler"
+	"github.com/ryym/go-bookmark/repo"
 	"github.com/ryym/goq"
 )
 
@@ -13,6 +14,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	repo.Init(db)
 
 	e := echo.New()
 	defineRoutes(e, ctx.NewAppContext(db))
