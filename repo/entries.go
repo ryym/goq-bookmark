@@ -48,3 +48,10 @@ func (r *EntriesRepo) Update(entry *model.Entry) error {
 	_, err := r.DB.Exec(q)
 	return err
 }
+
+func (r *EntriesRepo) Delete(entryID int) error {
+	z := r.Builder
+	q := z.DeleteFrom(z.Entries).Where(z.Entries.ID.Eq(entryID))
+	_, err := r.DB.Exec(q)
+	return err
+}

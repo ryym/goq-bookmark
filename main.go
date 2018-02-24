@@ -46,6 +46,10 @@ func main() {
 	e.POST("/entries", CreateEntry(entriesR))
 	e.GET("/entries/:entry_id", EditEntry(entriesR))
 	e.POST("/entries/:entry_id", UpdateEntry(entriesR))
+
+	// XXX: You should not use GET for deletion.
+	e.GET("/entries/:entry_id/delete", DeleteEntry(entriesR))
+
 	e.Logger.Fatal(e.Start(":8000"))
 }
 
@@ -295,6 +299,22 @@ func UpdateEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
 		}
 
 		err = entriesR.Update(&entry)
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusFound, "/entries")
+	}
+}
+
+func DeleteEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		entryID, err := strconv.Atoi(c.Param("entry_id"))
+		if err != nil {
+			return fmt.Errorf("Invalid entry ID: %s", err)
+		}
+
+		err = entriesR.Delete(entryID)
 		if err != nil {
 			return err
 		}
