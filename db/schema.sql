@@ -19,7 +19,6 @@ CREATE TABLE entries (
 
 CREATE TABLE bookmarks (
     id SERIAL NOT NULL,
-
     user_id INT NOT NULL,
     entry_id INT NOT NULL,
     comment VARCHAR(256) NOT NULL,

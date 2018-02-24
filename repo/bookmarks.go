@@ -21,30 +21,27 @@ func (r *BookmarksRepo) Find(bookmarkID int) (model.Bookmark, error) {
 	var bookmark model.Bookmark
 	err := r.DB.Query(q).First(z.Bookmarks.ToElem(&bookmark))
 	if err == nil && bookmark.ID == 0 {
-		err = fmt.Errorf("Could not find bookmark %d", bookmarkID)
+		err = fmt.Errorf("could not find bookmark %d", bookmarkID)
 	}
 
 	return bookmark, err
 }
 
 func (r *BookmarksRepo) FindWithAssocs(bookmarkID int) (model.Bookmark, model.User, model.Entry, error) {
+	// You can use alias to avoid repeating table names.
 	b, u, e := z.Bookmarks.As("b"), z.Users.As("u"), z.Entries.As("e")
-	q := z.Select(b.All(), u.All(), e.All()).From(b).Joins(
-		b.Users(u),
-		b.Entries(e),
-	).Where(b.ID.Eq(bookmarkID))
+	q := z.Select(b.All(), u.All(), e.All()).
+		From(b).
+		Joins(b.Users(u), b.Entries(e)).
+		Where(b.ID.Eq(bookmarkID))
 
 	var bookmark model.Bookmark
 	var user model.User
 	var entry model.Entry
-	err := r.DB.Query(q).First(
-		b.ToElem(&bookmark),
-		u.ToElem(&user),
-		e.ToElem(&entry),
-	)
+	err := r.DB.Query(q).First(b.ToElem(&bookmark), u.ToElem(&user), e.ToElem(&entry))
 
 	if err == nil && bookmark.ID == 0 {
-		err = fmt.Errorf("Could not find bookmark %d", bookmarkID)
+		err = fmt.Errorf("could not find bookmark %d", bookmarkID)
 	}
 
 	return bookmark, user, entry, err
@@ -69,9 +66,9 @@ func (r *BookmarksRepo) FromUser(userID int) ([]model.Bookmark, []model.Entry, e
 func (r *BookmarksRepo) UnbookmarkedEntries(userID int) ([]model.Entry, error) {
 	q := z.Select(z.Entries.All()).From(z.Entries).Where(
 		z.Entries.ID.NotIn(
-			z.Select(z.Bookmarks.EntryID).From(z.Bookmarks).Where(
-				z.Bookmarks.UserID.Eq(userID),
-			),
+			z.Select(z.Bookmarks.EntryID).
+				From(z.Bookmarks).
+				Where(z.Bookmarks.UserID.Eq(userID)),
 		),
 	).OrderBy(z.Entries.CreatedAt)
 
