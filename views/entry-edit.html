@@ -1,0 +1,27 @@
+{{define "entry-edit"}}
+
+<h1>Edit entry {{.Entry.Title}}</h1>
+
+{{if .Errs}}
+<ul style="color: red;">
+  {{range .Errs}}
+  <li>{{.Error}}</li>
+  {{end}}
+</ul>
+{{end}}
+
+<form method="POST">
+  <dl>
+    <dt>Title</dt>
+    <dd>
+      <input type="text" name="title" value="{{.Entry.Title}}">
+    </dd>
+    <dt>URL</dt>
+    <dd>
+      <input type="text" name="url" value="{{.Entry.URL}}">
+    </dd>
+  </dl>
+  <button type="submit">Update</button>
+</form>
+
+{{end}}

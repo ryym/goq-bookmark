@@ -44,6 +44,8 @@ func main() {
 
 	e.GET("/entries", ShowEntries(entriesR))
 	e.POST("/entries", CreateEntry(entriesR))
+	e.GET("/entries/:entry_id", EditEntry(entriesR))
+	e.POST("/entries/:entry_id", UpdateEntry(entriesR))
 	e.Logger.Fatal(e.Start(":8000"))
 }
 
@@ -244,6 +246,59 @@ func CreateEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
+		return c.Redirect(http.StatusFound, "/entries")
+	}
+}
+
+type editEntryPageData struct {
+	Errs  []error
+	Entry model.Entry
+}
+
+func EditEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+
+	return func(c echo.Context) error {
+		entryID, err := strconv.Atoi(c.Param("entry_id"))
+		if err != nil {
+			return fmt.Errorf("Invalid entry ID: %s", err)
+		}
+
+		entry, err := entriesR.Find(entryID)
+		if err != nil {
+			return err
+		}
+
+		return c.Render(http.StatusOK, "entry-edit", &editEntryPageData{
+			Entry: entry,
+		})
+	}
+}
+
+func UpdateEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		entryID, err := strconv.Atoi(c.Param("entry_id"))
+		if err != nil {
+			return fmt.Errorf("Invalid entry ID: %s", err)
+		}
+
+		entry := model.Entry{
+			ID:    entryID,
+			Title: c.FormValue("title"),
+			URL:   c.FormValue("url"),
+		}
+		errs := model.ValidateEntry(&entry)
+		if len(errs) > 0 {
+			return c.Render(http.StatusOK, "entry-edit", &editEntryPageData{
+				Entry: entry,
+				Errs:  errs,
+			})
+		}
+
+		err = entriesR.Update(&entry)
+		if err != nil {
+			return err
+		}
+
 		return c.Redirect(http.StatusFound, "/entries")
 	}
 }
