@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
+	"github.com/ryym/go-bookmark/ctx"
 	"github.com/ryym/go-bookmark/model"
 	"github.com/ryym/go-bookmark/repo"
 	"github.com/ryym/goq"
@@ -23,9 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	usersR := repo.NewUsersRepo(db)
-	bookmarksR := repo.NewBookmarksRepo(db)
-	entriesR := repo.NewEntriesRepo(db)
+	appCtx := ctx.NewAppContext(db)
 
 	e := echo.New()
 	e.Renderer = NewTemplate("views/*.html")
@@ -33,27 +32,30 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "home", nil)
 	})
-	e.GET("/users", ShowUsers(usersR))
-	e.GET("/users/:user_id", ShowBookmarks(usersR, bookmarksR, entriesR))
-	e.POST("/users/:user_id", CreateBookmark(bookmarksR))
-	e.GET("/bookmarks/:bookmark_id", EditBookmark(bookmarksR))
-	e.POST("/bookmarks/:bookmark_id", UpdateBookmark(bookmarksR, usersR))
+	e.GET("/users", ShowUsers(appCtx))
+	e.GET("/users/:user_id", ShowBookmarks(appCtx))
+	e.POST("/users/:user_id", CreateBookmark(appCtx))
+	e.GET("/bookmarks/:bookmark_id", EditBookmark(appCtx))
+	e.POST("/bookmarks/:bookmark_id", UpdateBookmark(appCtx))
 
 	// XXX: You should not use GET for deletion.
-	e.GET("/bookmarks/:bookmark_id/delete", DeleteBookmark(bookmarksR))
+	e.GET("/bookmarks/:bookmark_id/delete", DeleteBookmark(appCtx))
 
-	e.GET("/entries", ShowEntries(entriesR))
-	e.POST("/entries", CreateEntry(entriesR))
-	e.GET("/entries/:entry_id", EditEntry(entriesR))
-	e.POST("/entries/:entry_id", UpdateEntry(entriesR))
+	e.GET("/entries", ShowEntries(appCtx))
+	e.POST("/entries", CreateEntry(appCtx))
+	e.GET("/entries/:entry_id", EditEntry(appCtx))
+	e.POST("/entries/:entry_id", UpdateEntry(appCtx))
 
 	// XXX: You should not use GET for deletion.
-	e.GET("/entries/:entry_id/delete", DeleteEntry(entriesR))
+	e.GET("/entries/:entry_id/delete", DeleteEntry(appCtx))
 
 	e.Logger.Fatal(e.Start(":8000"))
 }
 
-func ShowUsers(usersR *repo.UsersRepo) echo.HandlerFunc {
+func ShowUsers(app interface {
+	UsersRepo() *repo.UsersRepo
+}) echo.HandlerFunc {
+	usersR := app.UsersRepo()
 	return func(c echo.Context) error {
 		users, err := usersR.All()
 		if err != nil {
@@ -63,11 +65,10 @@ func ShowUsers(usersR *repo.UsersRepo) echo.HandlerFunc {
 	}
 }
 
-func ShowBookmarks(
-	usersR *repo.UsersRepo,
-	bookmarksR *repo.BookmarksRepo,
-	entriesR *repo.EntriesRepo,
-) echo.HandlerFunc {
+func ShowBookmarks(app interface {
+	UsersRepo() *repo.UsersRepo
+	BookmarksRepo() *repo.BookmarksRepo
+}) echo.HandlerFunc {
 	type bookmark struct {
 		Bookmark model.Bookmark
 		Entry    model.Entry
@@ -78,6 +79,8 @@ func ShowBookmarks(
 		Entries   []model.Entry
 	}
 
+	usersR := app.UsersRepo()
+	bookmarksR := app.BookmarksRepo()
 	return func(c echo.Context) error {
 		userID, err := strconv.Atoi(c.Param("user_id"))
 		if err != nil {
@@ -115,7 +118,10 @@ func ShowBookmarks(
 	}
 }
 
-func CreateBookmark(bookmarksR *repo.BookmarksRepo) echo.HandlerFunc {
+func CreateBookmark(app interface {
+	BookmarksRepo() *repo.BookmarksRepo
+}) echo.HandlerFunc {
+	bookmarksR := app.BookmarksRepo()
 	return func(c echo.Context) error {
 		userID, err := strconv.Atoi(c.Param("user_id"))
 		if err != nil {
@@ -147,7 +153,10 @@ type editBookmarkPageData struct {
 	Entry    model.Entry
 }
 
-func EditBookmark(bookmarksR *repo.BookmarksRepo) echo.HandlerFunc {
+func EditBookmark(app interface {
+	BookmarksRepo() *repo.BookmarksRepo
+}) echo.HandlerFunc {
+	bookmarksR := app.BookmarksRepo()
 	return func(c echo.Context) error {
 		bookmarkID, err := strconv.Atoi(c.Param("bookmark_id"))
 		if err != nil {
@@ -167,7 +176,10 @@ func EditBookmark(bookmarksR *repo.BookmarksRepo) echo.HandlerFunc {
 	}
 }
 
-func UpdateBookmark(bookmarksR *repo.BookmarksRepo, usersR *repo.UsersRepo) echo.HandlerFunc {
+func UpdateBookmark(app interface {
+	BookmarksRepo() *repo.BookmarksRepo
+}) echo.HandlerFunc {
+	bookmarksR := app.BookmarksRepo()
 	return func(c echo.Context) error {
 		bookmarkID, err := strconv.Atoi(c.Param("bookmark_id"))
 		if err != nil {
@@ -189,7 +201,10 @@ func UpdateBookmark(bookmarksR *repo.BookmarksRepo, usersR *repo.UsersRepo) echo
 	}
 }
 
-func DeleteBookmark(bookmarksR *repo.BookmarksRepo) echo.HandlerFunc {
+func DeleteBookmark(app interface {
+	BookmarksRepo() *repo.BookmarksRepo
+}) echo.HandlerFunc {
+	bookmarksR := app.BookmarksRepo()
 	return func(c echo.Context) error {
 		bookmarkID, err := strconv.Atoi(c.Param("bookmark_id"))
 		if err != nil {
@@ -214,7 +229,10 @@ type entriesPageData struct {
 	Errs    []error
 }
 
-func ShowEntries(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+func ShowEntries(app interface {
+	EntriesRepo() *repo.EntriesRepo
+}) echo.HandlerFunc {
+	entriesR := app.EntriesRepo()
 	return func(c echo.Context) error {
 		entries, err := entriesR.All()
 		if err != nil {
@@ -226,7 +244,10 @@ func ShowEntries(entriesR *repo.EntriesRepo) echo.HandlerFunc {
 	}
 }
 
-func CreateEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+func CreateEntry(app interface {
+	EntriesRepo() *repo.EntriesRepo
+}) echo.HandlerFunc {
+	entriesR := app.EntriesRepo()
 	return func(c echo.Context) error {
 		entry := model.Entry{
 			Title: c.FormValue("title"),
@@ -259,8 +280,10 @@ type editEntryPageData struct {
 	Entry model.Entry
 }
 
-func EditEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
-
+func EditEntry(app interface {
+	EntriesRepo() *repo.EntriesRepo
+}) echo.HandlerFunc {
+	entriesR := app.EntriesRepo()
 	return func(c echo.Context) error {
 		entryID, err := strconv.Atoi(c.Param("entry_id"))
 		if err != nil {
@@ -278,7 +301,10 @@ func EditEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
 	}
 }
 
-func UpdateEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+func UpdateEntry(app interface {
+	EntriesRepo() *repo.EntriesRepo
+}) echo.HandlerFunc {
+	entriesR := app.EntriesRepo()
 	return func(c echo.Context) error {
 		entryID, err := strconv.Atoi(c.Param("entry_id"))
 		if err != nil {
@@ -307,7 +333,10 @@ func UpdateEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
 	}
 }
 
-func DeleteEntry(entriesR *repo.EntriesRepo) echo.HandlerFunc {
+func DeleteEntry(app interface {
+	EntriesRepo() *repo.EntriesRepo
+}) echo.HandlerFunc {
+	entriesR := app.EntriesRepo()
 	return func(c echo.Context) error {
 		entryID, err := strconv.Atoi(c.Param("entry_id"))
 		if err != nil {
