@@ -1,0 +1,20 @@
+{{define "bookmark-edit"}}
+
+<h1>{{.User.Name}}'s bookmark</h1>
+
+<form method="POST">
+  <dl>
+    <dt>Title</dt>
+    <dd>{{.Entry.Title}}</dd>
+    <dt>URL</dt>
+    <dd>{{.Entry.URL}}</dd>
+    <dt>Comment</dt>
+    <dd>
+      <textarea id="bookmark-comment" name="comment" cols="30" rows="4">{{.Bookmark.Comment}}</textarea>
+    </dd>
+  </dl>
+
+  <button type="submit">Update</button>
+</form>
+
+{{end}}

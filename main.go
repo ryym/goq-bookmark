@@ -36,6 +36,8 @@ func main() {
 	e.GET("/users", ShowUsers(usersR))
 	e.GET("/users/:user_id", ShowBookmarks(usersR, bookmarksR, entriesR))
 	e.POST("/users/:user_id", CreateBookmark(bookmarksR))
+	e.GET("/bookmarks/:bookmark_id", EditBookmark(bookmarksR))
+	e.POST("/bookmarks/:bookmark_id", UpdateBookmark(bookmarksR, usersR))
 	e.GET("/entries", ShowEntries(entriesR))
 	e.POST("/entries", CreateEntry(entriesR))
 	e.Logger.Fatal(e.Start(":8000"))
@@ -126,6 +128,54 @@ func CreateBookmark(bookmarksR *repo.BookmarksRepo) echo.HandlerFunc {
 		}
 
 		return c.Redirect(http.StatusFound, fmt.Sprintf("/users/%d", userID))
+	}
+}
+
+type editBookmarkPageData struct {
+	Bookmark model.Bookmark
+	User     model.User
+	Entry    model.Entry
+}
+
+func EditBookmark(bookmarksR *repo.BookmarksRepo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		bookmarkID, err := strconv.Atoi(c.Param("bookmark_id"))
+		if err != nil {
+			return fmt.Errorf("Invalid bookmark ID: %s", err)
+		}
+
+		bookmark, user, entry, err := bookmarksR.FindWithAssocs(bookmarkID)
+		if err != nil {
+			return err
+		}
+
+		return c.Render(http.StatusOK, "bookmark-edit", &editBookmarkPageData{
+			Bookmark: bookmark,
+			Entry:    entry,
+			User:     user,
+		})
+	}
+}
+
+func UpdateBookmark(bookmarksR *repo.BookmarksRepo, usersR *repo.UsersRepo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		bookmarkID, err := strconv.Atoi(c.Param("bookmark_id"))
+		if err != nil {
+			return fmt.Errorf("Invalid bookmark ID: %s", err)
+		}
+
+		bookmark, err := bookmarksR.Find(bookmarkID)
+		if err != nil {
+			return err
+		}
+
+		bookmark.Comment = strings.TrimSpace(c.FormValue("comment"))
+		err = bookmarksR.Update(&bookmark)
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusFound, fmt.Sprintf("/users/%d", bookmark.UserID))
 	}
 }
 

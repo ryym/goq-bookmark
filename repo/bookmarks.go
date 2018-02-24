@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"fmt"
+
 	"github.com/ryym/go-bookmark/model"
 	"github.com/ryym/goq"
 )
@@ -11,6 +13,43 @@ type BookmarksRepo struct {
 
 func NewBookmarksRepo(db *goq.DB) *BookmarksRepo {
 	return &BookmarksRepo{newRepo(db)}
+}
+
+func (r *BookmarksRepo) Find(bookmarkID int) (model.Bookmark, error) {
+	z := r.Builder
+	q := z.Select(z.Bookmarks.All()).From(z.Bookmarks).Where(z.Bookmarks.ID.Eq(bookmarkID))
+
+	var bookmark model.Bookmark
+	err := r.DB.Query(q).First(z.Bookmarks.ToElem(&bookmark))
+	if err == nil && bookmark.ID == 0 {
+		err = fmt.Errorf("Could not find bookmark %d", bookmarkID)
+	}
+
+	return bookmark, err
+}
+
+func (r *BookmarksRepo) FindWithAssocs(bookmarkID int) (model.Bookmark, model.User, model.Entry, error) {
+	z := r.Builder
+	b, u, e := z.Bookmarks.As("b"), z.Users.As("u"), z.Entries.As("e")
+	q := z.Select(b.All(), u.All(), e.All()).From(b).Joins(
+		b.Users(u),
+		b.Entries(e),
+	).Where(b.ID.Eq(bookmarkID))
+
+	var bookmark model.Bookmark
+	var user model.User
+	var entry model.Entry
+	err := r.DB.Query(q).First(
+		b.ToElem(&bookmark),
+		u.ToElem(&user),
+		e.ToElem(&entry),
+	)
+
+	if err == nil && bookmark.ID == 0 {
+		err = fmt.Errorf("Could not find bookmark %d", bookmarkID)
+	}
+
+	return bookmark, user, entry, err
 }
 
 func (r *BookmarksRepo) FromUser(userID int) ([]model.Bookmark, []model.Entry, error) {
@@ -48,6 +87,13 @@ func (r *BookmarksRepo) Create(bookmark *model.Bookmark) error {
 		z.Bookmarks,
 		z.Bookmarks.Except(z.Bookmarks.ID).Columns()...,
 	).Values(bookmark)
+	_, err := r.DB.Exec(q)
+	return err
+}
+
+func (r *BookmarksRepo) Update(bookmark *model.Bookmark) error {
+	z := r.Builder
+	q := z.Update(z.Bookmarks).Elem(bookmark, z.Bookmarks.Comment)
 	_, err := r.DB.Exec(q)
 	return err
 }
