@@ -1,7 +1,8 @@
 INSERT INTO users (id, name) VALUES
-(1, 'Alice')
+(1, 'Alice'),
+(2, 'Bob')
 ;
-SELECT setval('users_id_seq', 1);
+SELECT setval('users_id_seq', 2);
 
 INSERT INTO entries (id, url, title) VALUES
 (1, 'http://example.com', 'The example domain'),
@@ -13,7 +14,9 @@ INSERT INTO entries (id, url, title) VALUES
 SELECT setval('entries_id_seq', 5);
 
 INSERT INTO bookmarks (id, user_id, entry_id, comment) VALUES
-(1, 1, 1, ''),
-(2, 1, 2, 'So many great projects!')
+(1, 1, 2, 'So many great projects!'),
+(2, 1, 3, ''),
+(3, 1, 5, 'I have a prime membership'),
+(4, 2, 1, 'The example domain')
 ;
-SELECT setval('bookmarks_id_seq', 2);
+SELECT setval('bookmarks_id_seq', 4);
