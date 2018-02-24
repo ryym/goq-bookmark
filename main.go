@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 	"github.com/ryym/goq"
@@ -30,8 +33,17 @@ func connectToDB() (*goq.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = db.Ping(); err != nil {
-		return nil, err
+
+	nTries := 3
+	for i := 0; i < nTries; i++ {
+		if err = db.Ping(); err == nil {
+			break
+		}
+		fmt.Println("waiting for DB...")
+		time.Sleep(5 * time.Second)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to ping DB: %s", err)
 	}
 
 	return db, nil
