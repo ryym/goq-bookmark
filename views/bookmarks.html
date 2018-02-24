@@ -7,6 +7,7 @@
   <li>
     <a target="_blank" href="{{.Entry.URL}}">{{.Entry.Title}}</a>
     <a href="/bookmarks/{{.Bookmark.ID}}">[edit]</a>
+    <a href="/bookmarks/{{.Bookmark.ID}}/delete">[delete]</a>
     {{if .Bookmark.Comment}}
       <p>{{.Bookmark.Comment}}</p>
     {{end}}

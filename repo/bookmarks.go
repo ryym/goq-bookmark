@@ -97,3 +97,10 @@ func (r *BookmarksRepo) Update(bookmark *model.Bookmark) error {
 	_, err := r.DB.Exec(q)
 	return err
 }
+
+func (r *BookmarksRepo) Delete(bookmarkID int) error {
+	z := r.Builder
+	q := z.DeleteFrom(z.Bookmarks).Where(z.Bookmarks.ID.Eq(bookmarkID))
+	_, err := r.DB.Exec(q)
+	return err
+}
