@@ -54,7 +54,8 @@ func (r *BookmarksRepo) FromUser(userID int) ([]model.Bookmark, []model.Entry, e
 	q := z.Select(z.Bookmarks.All(), z.Entries.All()).
 		From(z.Bookmarks).
 		Joins(z.Bookmarks.Entries(z.Entries)).
-		Where(z.Bookmarks.UserID.Eq(userID))
+		Where(z.Bookmarks.UserID.Eq(userID)).
+		OrderBy(z.Bookmarks.CreatedAt)
 
 	var bookmarks []model.Bookmark
 	var entries []model.Entry
@@ -72,7 +73,7 @@ func (r *BookmarksRepo) UnbookmarkedEntries(userID int) ([]model.Entry, error) {
 				z.Bookmarks.UserID.Eq(userID),
 			),
 		),
-	)
+	).OrderBy(z.Entries.CreatedAt)
 
 	var entries []model.Entry
 	err := r.DB.Query(q).Collect(z.Entries.ToSlice(&entries))

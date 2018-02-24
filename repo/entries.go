@@ -26,7 +26,7 @@ func (r *EntriesRepo) Find(entryID int) (model.Entry, error) {
 }
 
 func (r *EntriesRepo) All() ([]model.Entry, error) {
-	q := z.Select(z.Entries.All()).From(z.Entries).OrderBy(z.Entries.ID.Desc())
+	q := z.Select(z.Entries.All()).From(z.Entries).OrderBy(z.Entries.CreatedAt)
 
 	var entries []model.Entry
 	err := r.DB.Query(q).Collect(z.ToSlice(&entries))
