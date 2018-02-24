@@ -1,7 +1,7 @@
 package ctx
 
 import (
-	"github.com/ryym/go-bookmark/repo"
+	"github.com/ryym/goq-bookmark/repo"
 	"github.com/ryym/goq"
 )
 

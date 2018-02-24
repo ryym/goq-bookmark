@@ -1,6 +1,6 @@
 package repo
 
-import "github.com/ryym/go-bookmark/model"
+import "github.com/ryym/goq-bookmark/model"
 
 //go:generate goq
 

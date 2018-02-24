@@ -3,7 +3,7 @@ package repo
 import (
 	"fmt"
 
-	"github.com/ryym/go-bookmark/model"
+	"github.com/ryym/goq-bookmark/model"
 	"github.com/ryym/goq"
 )
 

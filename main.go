@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
-	"github.com/ryym/go-bookmark/ctx"
-	"github.com/ryym/go-bookmark/handler"
-	"github.com/ryym/go-bookmark/repo"
+	"github.com/ryym/goq-bookmark/ctx"
+	"github.com/ryym/goq-bookmark/handler"
+	"github.com/ryym/goq-bookmark/repo"
 	"github.com/ryym/goq"
 )
 

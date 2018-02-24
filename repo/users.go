@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"github.com/ryym/go-bookmark/model"
+	"github.com/ryym/goq-bookmark/model"
 	"github.com/ryym/goq"
 )
 

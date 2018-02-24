@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo"
-	"github.com/ryym/go-bookmark/model"
-	"github.com/ryym/go-bookmark/repo"
+	"github.com/ryym/goq-bookmark/model"
+	"github.com/ryym/goq-bookmark/repo"
 )
 
 type entriesPageData struct {
