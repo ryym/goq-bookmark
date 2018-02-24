@@ -3,15 +3,35 @@
 <h1>{{.User.Name}}'s bookmarks</h1>
 
 <ul>
-  {{range $i, $bkm := .Bookmarks}}
-  {{$entry := index $.Entries $i}}
+  {{range .Bookmarks}}
   <li>
-    <a target="_blank" href="{{$entry.URL}}">{{$entry.Title}}</a>
-    {{if $bkm.Comment.Valid}}
-      <p>{{$bkm.Comment.String}}</p>
+    <a target="_blank" href="{{.Entry.URL}}">{{.Entry.Title}}</a>
+    {{if .Bookmark.Comment}}
+      <p>{{.Bookmark.Comment}}</p>
     {{end}}
   </li>
   {{end}}
 </ul>
+
+{{if .Entries}}
+<h2>New bookmark</h2>
+<form method="POST">
+  <p>
+    <select name="entry_id">
+      {{range .Entries}}
+      <option value="{{.ID}}">{{.Title}} ({{.URL}})</option>
+      {{end}}
+    </select>
+  </p>
+  <p>
+    <label for="bookmark-comment">Comment</label>
+    <textarea id="bookmark-comment" name="comment" cols="30" rows="4"></textarea>
+  </p>
+  <button type="submit">Add</button>
+</form>
+<a href="/entries">Add new entry</a>
+{{else}}
+<p>You are bookmarking all entries</p>
+{{end}}
 
 {{end}}

@@ -26,12 +26,14 @@ CREATE TABLE bookmarks (
 
     user_id INT NOT NULL,
     entry_id INT NOT NULL,
-    comment VARCHAR(256),
+    comment VARCHAR(256) NOT NULL,
 
     /* created_at DATETIME NOT NULL, */
     /* updated_at DATETIME NOT NULL, */
 
     PRIMARY KEY (id),
-    UNIQUE (user_id, entry_id)
+    UNIQUE (user_id, entry_id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (entry_id) REFERENCES entries (id)
 );
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
@@ -33,7 +34,8 @@ func main() {
 		return c.Render(http.StatusOK, "home", nil)
 	})
 	e.GET("/users", ShowUsers(usersR))
-	e.GET("/users/:user_id", ShowBookmarks(usersR, bookmarksR))
+	e.GET("/users/:user_id", ShowBookmarks(usersR, bookmarksR, entriesR))
+	e.POST("/users/:user_id", CreateBookmark(bookmarksR))
 	e.GET("/entries", ShowEntries(entriesR))
 	e.POST("/entries", CreateEntry(entriesR))
 	e.Logger.Fatal(e.Start(":8000"))
@@ -52,10 +54,15 @@ func ShowUsers(usersR *repo.UsersRepo) echo.HandlerFunc {
 func ShowBookmarks(
 	usersR *repo.UsersRepo,
 	bookmarksR *repo.BookmarksRepo,
+	entriesR *repo.EntriesRepo,
 ) echo.HandlerFunc {
+	type bookmark struct {
+		Bookmark model.Bookmark
+		Entry    model.Entry
+	}
 	type data struct {
 		User      model.User
-		Bookmarks []model.Bookmark
+		Bookmarks []bookmark
 		Entries   []model.Entry
 	}
 
@@ -78,11 +85,47 @@ func ShowBookmarks(
 			return err
 		}
 
+		bks := make([]bookmark, 0, len(bookmarks))
+		for i, bk := range bookmarks {
+			bks = append(bks, bookmark{bk, entries[i]})
+		}
+
+		candidates, err := bookmarksR.UnbookmarkedEntries(userID)
+		if err != nil {
+			return err
+		}
+
 		return c.Render(http.StatusOK, "bookmarks", &data{
 			User:      user,
-			Bookmarks: bookmarks,
-			Entries:   entries,
+			Bookmarks: bks,
+			Entries:   candidates,
 		})
+	}
+}
+
+func CreateBookmark(bookmarksR *repo.BookmarksRepo) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID, err := strconv.Atoi(c.Param("user_id"))
+		if err != nil {
+			return fmt.Errorf("Invalid user ID: %s", err)
+		}
+		entryID, err := strconv.Atoi(c.FormValue("entry_id"))
+		if err != nil {
+			return fmt.Errorf("Invalid entry ID: %s", err)
+		}
+
+		bookmark := model.Bookmark{
+			UserID:  userID,
+			EntryID: entryID,
+			Comment: strings.TrimSpace(c.FormValue("comment")),
+		}
+
+		err = bookmarksR.Create(&bookmark)
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusFound, fmt.Sprintf("/users/%d", userID))
 	}
 }
 
