@@ -50,9 +50,6 @@ func ShowBookmarks(app interface {
 		if err != nil {
 			return err
 		}
-		if user.ID == 0 {
-			return fmt.Errorf("invalid user ID: %d", userID)
-		}
 
 		bookmarks, entries, err := bookmarksR.FromUser(userID)
 		if err != nil {
