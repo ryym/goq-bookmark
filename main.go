@@ -36,7 +36,7 @@ func connectToDB() (*goq.DB, error) {
 
 	nTries := 3
 	for i := 0; i < nTries; i++ {
-		if err = db.Ping(); err == nil {
+		if err = db.DB.Ping(); err == nil {
 			break
 		}
 		fmt.Println("waiting for DB...")
