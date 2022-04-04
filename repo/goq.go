@@ -5,48 +5,46 @@ package repo
 
 import (
 	"github.com/ryym/goq"
-	"github.com/ryym/goq/cllct"
 	"github.com/ryym/goq/dialect"
-	"github.com/ryym/goq/goql"
 )
 
 type Users struct {
-	goql.Table
-	*cllct.ModelCollectorMaker
+	goq.Table
+	*goq.ModelCollectorMaker
 
-	ID        *goql.Column
-	Name      *goql.Column
-	CreatedAt *goql.Column
+	ID        *goq.Column
+	Name      *goq.Column
+	CreatedAt *goq.Column
 }
 
 func NewUsers(alias string) *Users {
-	cm := goql.NewColumnMaker("User", "users").As(alias)
+	cm := goq.NewColumnMaker("User", "users").As(alias)
 	t := &Users{
 
 		ID:        cm.Col("ID", "id").PK().Bld(),
 		Name:      cm.Col("Name", "name").Bld(),
 		CreatedAt: cm.Col("CreatedAt", "created_at").Bld(),
 	}
-	cols := []*goql.Column{t.ID, t.Name, t.CreatedAt}
-	t.Table = goql.NewTable("users", alias, cols)
-	t.ModelCollectorMaker = cllct.NewModelCollectorMaker(cols, alias)
+	cols := []*goq.Column{t.ID, t.Name, t.CreatedAt}
+	t.Table = goq.NewTable("users", alias, cols)
+	t.ModelCollectorMaker = goq.NewModelCollectorMaker(cols, alias)
 	return t
 }
 
 func (t *Users) As(alias string) *Users { return NewUsers(alias) }
 
 type Entries struct {
-	goql.Table
-	*cllct.ModelCollectorMaker
+	goq.Table
+	*goq.ModelCollectorMaker
 
-	ID        *goql.Column
-	URL       *goql.Column
-	Title     *goql.Column
-	CreatedAt *goql.Column
+	ID        *goq.Column
+	URL       *goq.Column
+	Title     *goq.Column
+	CreatedAt *goq.Column
 }
 
 func NewEntries(alias string) *Entries {
-	cm := goql.NewColumnMaker("Entry", "entries").As(alias)
+	cm := goq.NewColumnMaker("Entry", "entries").As(alias)
 	t := &Entries{
 
 		ID:        cm.Col("ID", "id").PK().Bld(),
@@ -54,27 +52,27 @@ func NewEntries(alias string) *Entries {
 		Title:     cm.Col("Title", "title").Bld(),
 		CreatedAt: cm.Col("CreatedAt", "created_at").Bld(),
 	}
-	cols := []*goql.Column{t.ID, t.URL, t.Title, t.CreatedAt}
-	t.Table = goql.NewTable("entries", alias, cols)
-	t.ModelCollectorMaker = cllct.NewModelCollectorMaker(cols, alias)
+	cols := []*goq.Column{t.ID, t.URL, t.Title, t.CreatedAt}
+	t.Table = goq.NewTable("entries", alias, cols)
+	t.ModelCollectorMaker = goq.NewModelCollectorMaker(cols, alias)
 	return t
 }
 
 func (t *Entries) As(alias string) *Entries { return NewEntries(alias) }
 
 type Bookmarks struct {
-	goql.Table
-	*cllct.ModelCollectorMaker
+	goq.Table
+	*goq.ModelCollectorMaker
 
-	ID        *goql.Column
-	UserID    *goql.Column
-	EntryID   *goql.Column
-	Comment   *goql.Column
-	CreatedAt *goql.Column
+	ID        *goq.Column
+	UserID    *goq.Column
+	EntryID   *goq.Column
+	Comment   *goq.Column
+	CreatedAt *goq.Column
 }
 
 func NewBookmarks(alias string) *Bookmarks {
-	cm := goql.NewColumnMaker("Bookmark", "bookmarks").As(alias)
+	cm := goq.NewColumnMaker("Bookmark", "bookmarks").As(alias)
 	t := &Bookmarks{
 
 		ID:        cm.Col("ID", "id").PK().Bld(),
@@ -83,9 +81,9 @@ func NewBookmarks(alias string) *Bookmarks {
 		Comment:   cm.Col("Comment", "comment").Bld(),
 		CreatedAt: cm.Col("CreatedAt", "created_at").Bld(),
 	}
-	cols := []*goql.Column{t.ID, t.UserID, t.EntryID, t.Comment, t.CreatedAt}
-	t.Table = goql.NewTable("bookmarks", alias, cols)
-	t.ModelCollectorMaker = cllct.NewModelCollectorMaker(cols, alias)
+	cols := []*goq.Column{t.ID, t.UserID, t.EntryID, t.Comment, t.CreatedAt}
+	t.Table = goq.NewTable("bookmarks", alias, cols)
+	t.ModelCollectorMaker = goq.NewModelCollectorMaker(cols, alias)
 	return t
 }
 
