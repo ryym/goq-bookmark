@@ -28,7 +28,7 @@ func main() {
 }
 
 func connectToDB() (*goq.DB, error) {
-	conn := "port=5431 user=bookmark sslmode=disable"
+	conn := "port=5431 user=bookmark password=bookmark sslmode=disable"
 	db, err := goq.Open("postgres", conn)
 	if err != nil {
 		return nil, err

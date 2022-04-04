@@ -8,3 +8,4 @@ services:
       - '5431:5432'
     environment:
       - POSTGRES_USER=bookmark
+      - POSTGRES_PASSWORD=bookmark
